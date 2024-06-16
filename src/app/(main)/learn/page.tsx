@@ -3,12 +3,14 @@ import { StickyWrapper } from "@/components/sticky-wrapper";
 import React from "react";
 import { LearnHeader } from "./learn-header";
 import { UserProgress } from "@/components/user-progress";
-import { getUserProgress } from "@/db/query";
+import { getUnits, getUserProgress } from "@/db/query";
 import { redirect } from "next/navigation";
+import { Unit } from "./unit";
 
 const LearnPage = async () => {
   const userProgressData = getUserProgress();
-  const [userProgress] = await Promise.all([userProgressData]);
+  const unitData = getUnits();
+  const [userProgress, units] = await Promise.all([userProgressData, unitData]);
   if (!userProgress || !userProgress.activeCourse) {
     return redirect("/courses");
   }
@@ -24,6 +26,19 @@ const LearnPage = async () => {
       </StickyWrapper>
       <FeedWrapper>
         <LearnHeader title={userProgress.activeCourse?.title} />
+        {units.map((unit) => (
+          <div className="mb-10" key={unit.id}>
+            <Unit
+              id={unit.id}
+              order={unit.order}
+              description={unit.description}
+              title={unit.title}
+              lessons={unit.lessons}
+              activeLesson={null}
+              activeLessonPercentage={0}
+            />
+          </div>
+        ))}
       </FeedWrapper>
     </div>
   );
